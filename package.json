@@ -6,7 +6,10 @@
   "author": "Xom <xom@xom.io>",
   "type": "module",
   "homepage": "https://github.com/Xom/shuffle-duplication",
-  "repository": "https://github.com/Xom/shuffle-duplication",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xom/shuffle-duplication.git"
+  },
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
