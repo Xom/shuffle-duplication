@@ -6,7 +6,7 @@ Advanced shuffle duplication for autochess-likes and other games, as explained i
 
 ## Demo
 
-```js
+```ts
 import { createHaystack, randomNeedle } from 'shuffle-duplication';
 import { createPcg32, randomInt } from 'pcg';
 
@@ -16,6 +16,12 @@ const randomUint32 = () => {
   const ret = randomInt(0, 2 ** 32, seedGenerator);
   seedGenerator = ret[1];
   return ret[0];
+};
+
+const randomUint64 = () => {
+  const lo = BigInt(randomUint32());
+  const hi = BigInt(randomUint32());
+  return (hi << 32n) | lo;
 };
 
 const CARDS = {
@@ -35,7 +41,7 @@ const seatSeeds = [];
 const seatStates = [];
 const seatShops = [];
 for (let i = 0; i < 8; i++) {
-  seatSeeds.push(randomUint32());
+  seatSeeds.push(randomUint64());
   seatStates.push(createHaystack(seatSeeds[i]));
   seatShops.push([]);
 }
@@ -75,7 +81,7 @@ This implements the simultaneous method of dealing cards to multiple players, as
 
 `createHaystack(seed) → Haystack`
 
- - `seed` must be an integer in \[0, 2 ** 32), or a string representation thereof, such as '42' instead of 42. For testing, any number is fine. For production, use random numbers.
+ - `seed` must be an integer or bigint in \[0, 2 ** 64), or a string representation thereof, such as '42' instead of 42. For testing, any number is fine. For production, use random numbers.
  - Haystack is a state object that cleanly serializes and deserializes with JSON.stringify and JSON.parse.
 
 `randomNeedle(haystack, weights) → needleId | null`
