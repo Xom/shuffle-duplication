@@ -1,6 +1,6 @@
 {
   "name": "shuffle-duplication",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Shuffle duplication using seeds for autochess-like games",
   "license": "MIT",
   "author": "Xom <xom@xom.io>",
