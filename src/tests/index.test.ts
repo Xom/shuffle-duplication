@@ -4,6 +4,7 @@ import {
   createHaystack,
   randomNeedle,
   randomNeedles,
+  randomNeedleFromHaystacks,
 } from '../index'
 
 const EPSILON = 1e-12
@@ -263,4 +264,54 @@ describe('randomNeedles equivalency', () => {
       expectClose(haystackB, haystackA, context)
     }
   })
+})
+
+test('randomNeedleFromHaystacks draw probabilities are proportional across haystacks', () => {
+  const counts: Record<string, number> = {
+    A: 0,
+    B: 0,
+  }
+
+  const pool = {
+    A: {
+      haystack: createHaystack(123),
+      weights: {
+        "2": 3,
+      },
+    },
+    B: {
+      haystack: createHaystack(456),
+      weights: {
+        "2": 1,
+        "3": 6,
+      },
+    },
+  } // Note: In the main use case for randomNeedleFromHaystacks, you want each haystack to have an equal chance. If you wanted that here, you'd change A's weight(s) to 3/3 and B's to 1/7 and 6/7, so that each haystack has the same total weight.
+
+  const trials = 100_000
+  for (let i = 0; i < trials; i++) {
+    const result = randomNeedleFromHaystacks(pool)
+    expect(result).not.toBeNull()
+    counts[result![0]]++
+  }
+
+  const expected = 3 / 10
+  const actual = counts.A / trials
+
+  const sigma = Math.sqrt((expected * (1 - expected)) / trials)
+
+  expect(
+    Math.abs(actual - expected),
+    JSON.stringify(
+      {
+        counts,
+        trials,
+        expected,
+        actual,
+        sigma,
+      },
+      null,
+      2
+    )
+  ).toBeLessThan(5 * sigma)
 })

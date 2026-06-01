@@ -142,7 +142,53 @@ export const randomNeedles = (
   return result
 }
 
-// Code beyond this line is non-essential to the haystack implementation, but is useful for autochess-like games.
+export const randomNeedleFromHaystacks = (
+  pool: Record<string, { haystack: Haystack; weights: WeightMap }>
+): [string, string] | null => {
+  let bestHaystackId: string | null = null
+  let bestNeedleId: string | null = null
+  let bestProjection = -Infinity
+
+  for (const [haystackId, { haystack, weights }] of Object.entries(pool)) {
+    const { seed, needles } = haystack
+    for (const [needleId, weight] of Object.entries(weights)) {
+      if (!(weight > 0)) {
+        continue
+      }
+      if (!needles[needleId]) {
+        needles[needleId] = randomNegExp(createPcg32({}, seed, needleId))
+      }
+      const projection = needles[needleId][0] / weight
+      if (projection > bestProjection) {
+        bestProjection = projection
+        bestHaystackId = haystackId
+        bestNeedleId = needleId
+      }
+    }
+  }
+
+  if (bestHaystackId === null || bestNeedleId === null) {
+    return null
+  }
+
+  for (const [haystackId, { haystack, weights }] of Object.entries(pool)) {
+    const { seed, needles } = haystack
+    for (const [needleId, weight] of Object.entries(weights)) {
+      if (!(weight > 0 && needles[needleId])) {
+        continue
+      }
+      if (haystackId === bestHaystackId && needleId === bestNeedleId) {
+        needles[needleId] = randomNegExp(needles[needleId][1])
+      } else {
+        needles[needleId][0] -= bestProjection * weight
+      }
+    }
+  }
+
+  return [bestHaystackId, bestNeedleId]
+}
+
+// Code beyond this line is non-essential to the haystack implementation, but may be useful for autochess-like games.
 
 const reverseQuantile = (r: number, probabilities: number[]): number => {
   // The lower the roll, the higher the rarity. (Could've been the opposite, but

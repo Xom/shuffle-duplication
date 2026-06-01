@@ -75,7 +75,7 @@ console.log(seatShops);
 console.log(seatShopsWithNames);
 ```
 
-This implements the simultaneous method of dealing cards to multiple players, as described in the 2026 May addendum to [Beyond Duplicate Bridge](https://gist.github.com/Xom/d836151a320d116936ea00203f70d46b).
+This implements the simultaneous method of dealing cards to multiple players described in the 2026-05-29 addendum to [Beyond Duplicate Bridge](https://gist.github.com/Xom/d836151a320d116936ea00203f70d46b), which I don't actually recommend; for that purpose, use `randomNeedleFromHaystacks` instead, as described in the 2026-06-01 addendum.
 
 ## API
 
@@ -97,11 +97,16 @@ This implements the simultaneous method of dealing cards to multiple players, as
  - Same as calling randomNeedle n times, with similar performance. Use whichever is convenient.
  - If `withReplacement` is **false**, then after each needle is chosen, its weight will be decremented by 1, before choosing the next needle. In this case, the weights object will be mutated! If all weights end up non-positive, the array returned may be shorter than n.
 
+`randomNeedleFromHaystacks(Record<string, { haystack: Haystack; weights: WeightMap }>) → [haystackId, needleId]`
+
+ - The string key is the haystackId. See test code for usage example.
+ - Explanation in the 2026-06-01 addendum to [Beyond Duplicate Bridge](https://gist.github.com/Xom/d836151a320d116936ea00203f70d46b). (In the main use case, you want the same total weight in each haystack.)
+
 `createRarityGenerator(seed) → PCGState`
 
 `randomRarity(pcgState, probabilities) → [number, PCGState]`
 
- - Not part of the haystack implementation, but useful for autochess-like games.
+ - Not part of the haystack implementation, but may be useful for autochess-like games.
  - `shuffle-duplication` depends on `pcg`, which exports PCGState. For convenience, `shuffle-duplication` re-exports PCGState, so you can import it from either.
  - PCGState is never mutated. Like `pcg`'s `randomInt`, `randomRarity` returns a two-element array of the random outcome and the new state. Remember to store the new state over the old state!
  - `probabilities` is an array of the probabilities of each rarity. Unlike the weights, these probabilities must sum to 1. (Except that probabilities\[0] is ignored, since it's enough to read all of the other probabilities.) The number returned by `randomRarity` is the randomly-chosen index in `probabilities`.
